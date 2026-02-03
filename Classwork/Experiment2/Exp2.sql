@@ -1,54 +1,59 @@
-CREATE TABLE customer_orders (
-    order_id SERIAL PRIMARY KEY,
-    customer_name VARCHAR(50),
-    product VARCHAR(50),
-    quantity INT,
-    price NUMERIC(10,2),
-    order_date DATE
+---customer name, product, quantity, price, and order date.
+
+create table customer_orders(
+order_id serial primary key,
+customer_name varchar(20),
+product varchar(20),
+quantity int,
+price numeric(10,2),
+order_date date
 );
 
-INSERT INTO customer_orders 
-(customer_name, product, quantity, price, order_date)
-VALUES
-('Amit', 'Laptop', 1, 55000, '2024-01-10'),
-('Riya', 'Laptop', 2, 54000, '2024-01-12'),
-('Karan', 'Mobile', 3, 20000, '2024-01-15'),
-('Sneha', 'Mobile', 1, 22000, '2024-01-16'),
-('Rahul', 'Tablet', 2, 30000, '2024-01-18'),
-('Pooja', 'Laptop', 1, 58000, '2024-01-20'),
-('Ankit', 'Tablet', 3, 28000, '2024-01-22');
+insert into customer_orders(customer_name,product,quantity,price,order_date) values
+('Amit', 'Laptop', 1, 55000, '2025-01-05'),
+('Amit', 'Mouse', 2, 800, '2025-01-06'),
+('Riya', 'Mobile', 1, 22000, '2025-01-10'),
+('Riya', 'Headphones', 1, 2000, '2025-01-10'),
+('Karan', 'Laptop', 1, 60000, '2025-02-02'),
+('Karan', 'Keyboard', 1, 1500, '2025-02-05'),
+('Neha', 'Mobile', 2, 21000, '2025-02-15'),
+('Neha', 'Charger', 3, 900, '2025-02-18');
 
-select * from customer_orders;
--- Step 2: 
-SELECT *
-FROM customer_orders
-WHERE price > 30000;
+select*from customer_orders;
 
--- Step 3: 
-SELECT customer_name, product, price
-FROM customer_orders
-WHERE price > 20000
-ORDER BY price ASC;
+--Filtering Data Using Conditions Show only those customer who purcahse 20000 above show customer name 
+--and product and quantity and price
 
-SELECT customer_name, product, price
-FROM customer_orders
-WHERE price > 20000
-ORDER BY price DESC;
+select order_id,customer_name,product,quantity,price
+from customer_orders where price>20000;
 
--- step 4: 
-SELECT product,
-       SUM(quantity * price) AS total_sales
-FROM customer_orders
-GROUP BY product;
--- Step 5:
-SELECT product,
-       SUM(quantity * price) AS total_sales
-FROM customer_orders
-GROUP BY product
-HAVING SUM(quantity * price) > 100000;
--- Step 6: 
+
+---Sorting Query Results
+--ascending
+select order_id,customer_name,product,quantity,price
+from customer_orders where price>20000 order by price ;
+
+--descending
+select order_id,customer_name,product,quantity,price
+from customer_orders where price>20000 order by price desc;
+
+--Grouping Data for Aggregation
+select product ,count(*)as total_product_sale
+from customer_orders
+group by product;
+
+
+--Step 5: Applying Conditions on Aggregated Data
+select product,
+sum(quantity*price) as total_revenue
+from customer_orders
+group by product
+having sum(quantity*price) > 50000;
+
+
+--step6
 select product, sum(quantity*price) as total_revenue
 from customer_orders
-where order_date >= '2024-01-15'
+where order_date >= '2025-01-01'
 group by product
 having sum(quantity*price) > 50000;

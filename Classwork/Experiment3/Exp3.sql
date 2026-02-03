@@ -1,55 +1,85 @@
-CREATE TABLE violation_review (
-    record_id SERIAL PRIMARY KEY,
-    entity_name VARCHAR(50) NOT NULL,
-    violation_count INT NOT NULL CHECK (violation_count >= 0)
+create table schema_audit(
+schema_id serial primary key,
+schema_name varchar(50),
+violation_count int
 );
-INSERT INTO violation_review (entity_name, violation_count) VALUES
-('Auth_Service', 0),
-('Payment_Service', 1),
-('Order_Service', 2),
-('Audit_Service', 3),
-('Admin_Service', 5);
 
-SELECT * FROM violation_review;
+--Insert records into the table.
+insert into schema_audit(schema_name, violation_count) values
+('UserDB', 0),
+('FinanceDB', 2),
+('SalesDB', 5),
+('AuditDB', 9),
+('BackupDB', 15);
 
--- case statement to classify violaions:
-SELECT *, 
-CASE WHEN violation_count = 0 THEN 'No Violations'
-WHEN violation_count BETWEEN 1 and 2 THEN 'Moderate Violations'
-ELSE 'Critical Violations'
-END AS violations_level
-FROM violation_review;
+select*from schema_audit;
 
--- Adding a status column: 
-ALTER TABLE violation_review
-ADD COLUMN status VARCHAR(20);
+--Classifying Data Using CASE Expression
+select schema_name, violation_count,
+case
+ when violation_count = 0 then 'No Violation'
+ when violation_count between 1 and 3 then 'Minor Violation'
+ when violation_count between 4 and 7 then 'Moderate Violation'
+ else 'Critical Violation'
+end as violation_status
+from schema_audit;
 
--- case statement to update status column: 
-UPDATE violation_review
-SET status =
-	CASE WHEN violation_count = 0 THEN 'Accepted'
-		WHEN violation_count BETWEEN 1 AND 2 THEN 'Reveiwing'
-		ELSE 'Rejected'
-	END
-WHERE status IS NULL;
+--Applying CASE Logic in Data Updates
+alter table schema_audit add approval_status varchar(30);
 
--- If Else: 
-DO $$
-DECLARE
-    v_count INT;
-BEGIN
-    SELECT violation_count
-    INTO v_count
-    FROM violation_review
-    WHERE entity_name = 'Payment_Service';
+update schema_audit
+set approval_status =
+case
+ when violation_count = 0 then 'Approved'
+ when violation_count between 1 and 5 then 'Needs Review'
+ else 'Rejected'
+end;
 
-    IF v_count = 0 THEN
-        RAISE NOTICE 'Payment_Service: Accepted';
 
-    ELSIF v_count = 1 THEN
-        RAISE NOTICE 'Payment_Service: Needs Review';
+--Implementing IF–ELSE Logic Using PL/pgSQL
+do $$
+declare
+ v_count int := 6;
+begin
+ if v_count = 0 then
+  raise notice 'System is clean. No violations.';
+ elseif v_count <= 5 then
+  raise notice 'System has minor issues. Review required.';
+ else
+  raise notice 'System is critical. Immediate action required.';
+ end if;
+end $$;
 
-    ELSE
-        RAISE NOTICE 'Payment_Service: Rejected';
-    END IF;
-END $$;
+
+--Real-World Classification Scenario (Grading System)
+-- grade system example
+
+create table students(
+student_name varchar(30),
+marks int
+);
+
+--Insert Student Data
+insert into students values
+('Amit',85), ('Neha',72), ('Riya',64), ('Karan',45), ('Rohit',32);
+
+select student_name, marks,
+case
+ when marks >= 80 then 'A Grade'
+ when marks >= 60 then 'B Grade'
+ when marks >= 40 then 'C Grade'
+ else 'Fail'
+end as grade
+from students;
+
+select * from students
+--Using CASE for Custom Sorting
+select schema_name, violation_count, approval_status
+from schema_audit
+order by
+case
+ when violation_count = 0 then 1
+ when violation_count between 1 and 3 then 2
+ when violation_count between 4 and 7 then 3
+ else 4
+end;

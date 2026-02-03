@@ -1,4 +1,4 @@
-# **DBMS Lab – Worksheet 1**  
+# **Technical Training – Worksheet 1**  
 ## **Design and Implementation of Sample Database System using DDL, DML and DCL**
 
 ---
